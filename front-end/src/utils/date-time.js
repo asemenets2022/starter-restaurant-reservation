@@ -80,3 +80,21 @@ export function next(currentDate) {
   date.setDate(date.getDate() + 1);
   return asDateString(date);
 }
+
+//Time-based validation for creating and updating reservations
+export function isNotOnTuesday(reservation_date, errors) {
+  const [year, month, day] = reservation_date.split("-");
+  const date = new Date(`${month} ${day}, ${year}`);
+  if (date.getDay() === 2) {
+    errors.push(<li key="tuesday">Restaurant is closed on Tuesdays</li>);
+  }
+}
+
+export function isInTheFuture(reservation_date, errors) {
+  const [year, month, day] = reservation_date.split("-");
+  const date = new Date(`${month} ${day}, ${year}`);
+  const today = new Date();
+  if (date < today) {
+    errors.push(<li key="past">Reservation must be in the future</li>);
+  }
+}
