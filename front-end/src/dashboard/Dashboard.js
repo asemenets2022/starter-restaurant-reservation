@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { listReservations } from "../utils/api";
-import useQuery from "../utils/useQuery";
 import ErrorAlert from "../layout/ErrorAlert";
 import { useHistory } from "react-router-dom";
 import {previous, next } from "../utils/date-time";
@@ -18,6 +17,11 @@ function Dashboard({ date }) {
   const [reservationsError, setReservationsError] = useState(null);
   const history = useHistory();
 
+
+  useEffect(loadDashboard, [date]);
+
+
+  //useEffect? needed 
   function loadDashboard() {
     const abortController = new AbortController();
     setReservationsError(null);

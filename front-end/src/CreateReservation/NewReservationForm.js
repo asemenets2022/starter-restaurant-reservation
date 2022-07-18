@@ -1,35 +1,42 @@
 import React, {useState} from "react";
 import { useHistory } from "react-router-dom";
 import { createReservations } from "../utils/api";
+import ErrorAlert from "../layout/ErrorAlert";
 
-
-export default function ReservationForm() {
+export default function CreateReservation() {
     const history = useHistory();
-    const [data, setFormData] = useState();
+
+    const initialFormState = {
+        first_name: "",
+        last_name: "",
+        mobile_number: "",
+        reservation_date: "",
+        reservation_time: "",
+        people: 0,
+    }
+
+    const [formData, setFormData] = useState({...initialFormState});
+    const [reservationsError, setReservationsError] = useState(null);
 
     const changeHandler = (event) => {
         setFormData({
-            ...data,
+            ...formData,
             [event.target.name]: event.target.value,
         });
-    }
+    };
 
-    const submit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        submitHandler(data);
-        setFormData({});
-    }
-
-    async function submitHandler(data) {
-        const ac = new AbortController();
         try {
-            await createReservations(data, ac.signal);
-            history.push("/dashboard")
+            setReservationsError(null);
+            const response = await createReservations({...formData, people: Number(formData.people)});
+            const date = response.reservation_date;
+            history.push(`/dashboard?date=${date}`)
         } catch (error) {
+            setReservationsError(error);
             console.log(error);
+        };
         }
-        return () => ac.abort();
-    }
 
     function cancelHandler() {
         history.goBack();
@@ -38,37 +45,44 @@ export default function ReservationForm() {
     return (
         <div>
             <h1>Create Reservation</h1>
-            <form onSubmit={submit}>
+            <ErrorAlert error={reservationsError} />
+            <form onSubmit={handleSubmit}>
                     <div className="row">
                     <div className="form-group col">
-                        <label>First Name</label>
-                        <input name="first_name" type="text" className="form-control" required="" placeholder="First Name" onChange={changeHandler}></input>
+                        <label>First Name
+                        <input name="first_name" type="text" className="form-control" required="" placeholder="First Name" value={formData.first_name} onChange={changeHandler}></input>
+                        </label>
                     </div>
                     <div className="form-group col">
-                        <label>Last Name</label>
-                        <input name="last_name" type="text" className="form-control" required="" placeholder="Last Name" onChange={changeHandler}></input>
+                        <label>Last Name
+                        <input name="last_name" type="text" className="form-control" required="" placeholder="Last Name" value={formData.last_name} onChange={changeHandler}></input>
+                        </label>
                     </div>
                     <div className="form-group col">
-                        <label>Mobile Number</label>
-                        <input name="mobile_number" type="text" className="form-control" required="" placeholder="Mobile Number" onChange={changeHandler}></input>
+                        <label>Mobile Number
+                        <input name="mobile_number" type="text" className="form-control" required="" placeholder="Mobile Number" value={formData.mobile_number} onChange={changeHandler}></input>
+                        </label>
                     </div>
                     </div>
                     <div className="row">
                     <div className="form-group col">
-                        <label>Date</label>
-                        <input name="reservation_date" type="date" className="form-control" required="" placeholder="yyyy-mm-dd" onChange={changeHandler}></input>
+                        <label>Date
+                        <input name="reservation_date" type="date" className="form-control" required="" placeholder="yyyy-mm-dd" value={formData.reservation_date} onChange={changeHandler}></input>
+                        </label>
                     </div>
                     <div className="form-group col">
-                        <label>Time</label>
-                        <input name="reservation_time" type="time" className="form-control" required="" placeholder="--:-- --" onChange={changeHandler}></input>
+                        <label>Time
+                        <input name="reservation_time" type="time" className="form-control" required="" placeholder="--:-- --" value={formData.reservation_time} onChange={changeHandler}></input>
+                        </label>
                     </div>
                     <div className="form-group col">
-                        <label>People</label>
-                        <input name="people" type="number" className="form-control" required="" onChange={changeHandler}></input>
+                        <label>People
+                        <input name="people" type="number" className="form-control" required="" value={formData.people} onChange={changeHandler}></input>
+                        </label>
                     </div>
                     </div>
                     <button className="btn btn-secondary mr-2 cancel" type="button" onClick={cancelHandler}>Cancel</button>
-                    <button className="btn btn-primary" type="submit" onClick={submit}>Submit</button>
+                    <button className="btn btn-primary" type="submit">Submit</button>
             </form>
         </div>
     )

@@ -1,16 +1,14 @@
-import React, { useState } from "react";
-import ErrorAlert from "../layout/ErrorAlert";
-import loadDashboard from   "./Dashboard";
+import React from "react";
 
-export default function ReservationsTable({reservations, loadDashboard}) {
-    const [error, setError] = useState(null);
-    const reservationsTableRows = reservations.map((reservation) => {
+export default function ReservationsTable({reservations}) {
+    const reservationsTableRow = reservations.map((reservation) => {
         return (
             <tr key={reservation.reservation_id}>
             <td>{reservation.reservation_id}</td>
-            <td>{reservation.first_name}</td>
-            <td>{reservation.last_name}</td>
+            <td>{reservation.last_name}, {reservation.first_name}</td>
             <td>{reservation.mobile_number}</td>
+            <td>{reservation.reservation_date}</td>
+            <td>{reservation.reservation_time}</td>
             <td>{reservation.people}</td>
             </tr>
         );
@@ -18,7 +16,6 @@ export default function ReservationsTable({reservations, loadDashboard}) {
 
     return (
         <div> 
-            <ErrorAlert error={error} />
             <table className="table table-sm">
                 <thead>
                     <tr>
@@ -31,7 +28,7 @@ export default function ReservationsTable({reservations, loadDashboard}) {
                         <th>STATUS</th>
                     </tr>
                 </thead>
-                <tbody>{reservationsTableRows}</tbody>
+                <tbody>{reservationsTableRow}</tbody>
             </table>
         </div>
     );

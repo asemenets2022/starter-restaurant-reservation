@@ -3,8 +3,16 @@
  */
 const reservationsService = require("./reservations.service");
 const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
+const hasProperties = require("../errors/requiredProperties");
 
-const VALID_RESERVATION_FIELDS = [
+function hasData(req, res, next) {
+  if (req.body.data) {
+    return next();
+  }
+  next({ status: 400, message: "Body must have data property." });
+}
+
+const REQUIRED_PROPERTIES = [
   "first_name",
   "last_name",
   "mobile_number",
@@ -13,20 +21,34 @@ const VALID_RESERVATION_FIELDS = [
   "people",
 ]
 
-function isValidReservation(req, res, next) {
-  const reservation = req.body.data;
+const hasRequiredProperties = hasProperties(...REQUIRED_PROPERTIES);
 
-  if (!reservation) {
-    return next({ status: 400, message: `Must have data property.` });
+function validDate(req, res, next) {
+  const date = req.body.data.reservation_date;
+  const valid = new Date(date) !== "Invalid Date" && !isNaN(new Date(date));
+  if (valid) {
+    return next();
   }
+  next({ status: 400, message: "reservation_date must be valid date." });
+}
 
-  VALID_RESERVATION_FIELDS.forEach((field) => {
-    if (!reservation[field]) {
-      return next({ status: 400, message: `${field} field required` });
-    }
-  });
+function validTime(req, res, next) {
+  const regex = /^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/;
+  const time = req.body.data.reservation_time;
+  const valid = time.match(regex);
+  if (valid) {
+    return next();
+  }
+  next({ status: 400, message: "reservation_time must be valid time." });
+}
 
-  next();
+function validPeople(req, res, next) {
+  const people = req.body.data.people;
+  console.log(typeof people);
+  if (people < 1 || typeof people !== "number") {
+    return next({ status: 400, message: "Valid people property required" });
+  }
+    return next();
 }
 
 function isNotOnTuesday(req, res, next) {
@@ -49,11 +71,35 @@ function isInTheFuture(req, res, next) {
   next();
 }
 
-function list(req, res, next) {
-  reservationsService
-  .list()
-  .then((data) => res.json({ data }))
-  .catch(next);
+function isWithinOpenHours(req, res, next) {
+  const reservation = req.body.data;
+  const [hour, minute] = reservation.reservation_time.split(":");
+  if (hour < 10 || hour > 21) {
+    return next({
+      status: 400,
+      message: "Reservation must be made within business hours",
+    });
+  }
+  if ((hour < 11 && minute < 30) || (hour > 20 && minute > 30)) {
+    return next({
+      status: 400,
+      message: "Reservation must be made within business hours",
+    });
+  }
+  next();
+}
+
+async function list(req, res, next) {
+  const { date, currentDate } = req.query;
+  if(date) {
+    const data = await reservationsService.listByDate(date);
+    res.json({ data });
+  } else if (currentDate) {  
+    const data = await reservationsService.listByDate(currentDate);
+  } else {
+    const data = await reservationsService.list();
+    res.json({ data });
+  }
 }
 
 async function create(req, res, next) {
@@ -64,10 +110,15 @@ async function create(req, res, next) {
 }
  
 module.exports = {
-  list,
-  create: [asyncErrorBoundary(isValidReservation),
+  list: asyncErrorBoundary(list),
+  create: [hasData,
+          hasRequiredProperties,
+          validDate,
+          validTime,
+          validPeople,
           isNotOnTuesday,
-          isInTheFuture,
+          isInTheFuture,  
+          isWithinOpenHours,
         asyncErrorBoundary(create)
       ],
 };
