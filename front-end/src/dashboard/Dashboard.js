@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { listReservations } from "../utils/api";
+import { listReservations, listTables } from "../utils/api";
 import ErrorAlert from "../layout/ErrorAlert";
 import { useHistory } from "react-router-dom";
-import {previous, next } from "../utils/date-time";
+import { previous, next } from "../utils/date-time";
 import ReservationsTable from "./ReservationsTable";
-
+import TablesTable from "./TablesTable";
 
 /**
  * Defines the dashboard page.
@@ -14,20 +14,20 @@ import ReservationsTable from "./ReservationsTable";
  */
 function Dashboard({ date }) {
   const [reservations, setReservations] = useState([]);
+  const [tables, setTables] = useState([]);
   const [reservationsError, setReservationsError] = useState(null);
   const history = useHistory();
 
-
   useEffect(loadDashboard, [date]);
 
-
-  //useEffect? needed 
   function loadDashboard() {
     const abortController = new AbortController();
     setReservationsError(null);
-    listReservations({date}, abortController.signal)
+    listReservations({ date }, abortController.signal)
       .then(setReservations)
       .catch(setReservationsError);
+    listTables(abortController.signal)
+    .then(setTables);
     return () => abortController.abort();
   }
 
@@ -44,21 +44,53 @@ function Dashboard({ date }) {
     history.push(`/dashboard?date=${next(date)}`);
   }
 
-
   return (
     <main>
-      <h1>Dashboard</h1>
-      <div className="d-md-flex mb-3">
-        <h4 className="mb-0">Reservations for {date}</h4>
+        <h1>Dashboard</h1>
+        <div className="row">
+        <div className="col-md-6 col-lg-6 col-sm-12">
+          <div className="d-md-flex mb-3">
+          <h4 className="box-title mb-0">Reservations for {date}</h4>
+        </div>
+        <div className="btn-group" role="group" aria-label="navigation buttons">
+          <button className="btn btn-secondary" onClick={handlePrev}>
+            Previous
+          </button>
+          <button className="btn btn-secondary" onClick={handleToday}>
+            Today
+          </button>
+          <button className="btn btn-secondary" onClick={handleNext}>
+            Next
+          </button>
+        </div>
+        <div>
+          <ErrorAlert error={reservationsError} />
+        </div>
+        <div className="table-responsive">
+        <table className="table no-wrap">
+          <thead>
+            <tr>
+              <ReservationsTable
+                reservations={reservations}
+                loadDashboard={loadDashboard}
+              />
+            </tr>
+          </thead>
+        </table>
       </div>
-      <div>
-        <button className="btn btn-secondary" onClick={handlePrev}>Previous</button>
-        <button className="btn btn-secondary" onClick={handleToday}>Today</button>
-        <button className="btn btn-secondary" onClick={handleNext}>Next</button>
-
       </div>
-      <ErrorAlert error={reservationsError} />
-      <ReservationsTable reservations={reservations} loadDashboard={loadDashboard} />
+      <div className="col-md-6 col-lg-6 col-sm-12">
+        <div className="table-responsive">
+        <table className="table no wrap">
+          <thead>
+            <tr>
+              <TablesTable tables={tables} loadDashboard={loadDashboard} />
+            </tr>
+          </thead>
+        </table>
+        </div>
+      </div>
+      </div>
     </main>
   );
 }
