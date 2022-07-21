@@ -67,27 +67,16 @@ function Dashboard({ date }) {
           <ErrorAlert error={reservationsError} />
         </div>
         <div className="table-responsive">
-        <table className="table no-wrap">
-          <thead>
-            <tr>
               <ReservationsTable
                 reservations={reservations}
-                loadDashboard={loadDashboard}
+                loadDashboard={loadDashboard} 
               />
-            </tr>
-          </thead>
-        </table>
+
       </div>
       </div>
       <div className="col-md-6 col-lg-6 col-sm-12">
         <div className="table-responsive">
-        <table className="table no wrap">
-          <thead>
-            <tr>
               <TablesTable tables={tables} loadDashboard={loadDashboard} />
-            </tr>
-          </thead>
-        </table>
         </div>
       </div>
       </div>

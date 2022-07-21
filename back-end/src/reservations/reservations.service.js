@@ -13,15 +13,23 @@ function listByDate(reservation_date) {
     .orderBy("reservation_time");
 }
 
-function create(reservation) {
+function create(newReservation) {
     return knex("reservations")
-    .insert(reservation)
+    .insert({...newReservation, status: "booked"})
     .returning("*")
     .then((newReservation) => newReservation[0]);
+}
+
+function read(reservation_id) {
+    return knex("reservations")
+    .select("*")
+    .where({reservation_id})
+    .then((result) => result[0]);
 }
 
 module.exports = {
     list,
     listByDate,
     create,
+    read,
 }
