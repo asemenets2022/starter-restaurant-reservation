@@ -6,7 +6,7 @@ exports.up = function(knex) {
 };
 
 exports.down = function(knex) {
-    return knex.schema.dropTable("reservations", (table) => {
+    return knex.schema.table("reservations", (table) => {
         table.dropColumn("status");
     });
 };
