@@ -7,7 +7,7 @@ import { today } from "../utils/date-time";
 import useQuery from "../utils/useQuery";
 import NewReservationForm from "../CreateReservation/NewReservationForm";
 import NewTable from "../Tables/NewTableForm";
-import Seat from "../Seat/Seat";
+import SeatReservation from "../Seat/SeatReservation";
 
 /**
  * Defines all the routes for the application.
@@ -40,7 +40,7 @@ function Routes() {
         <NewTable />
       </Route>
       <Route exact={true} path="/reservations/:reservation_id/seat">
-        <Seat />
+        <SeatReservation />
       </Route>
       <Route>
         <NotFound />

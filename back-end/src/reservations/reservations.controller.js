@@ -89,6 +89,17 @@ function isWithinOpenHours(req, res, next) {
   next();
 }
 
+function validStatus(req, res, next) {
+  const status = res.locals.reservation.status;
+  if(status !== "seated" && status !== "finished") {
+    return next();
+  }
+  next({
+    status: 400,
+    message: "status cannot be seated, finished",
+  });
+}
+
 async function list(req, res, next) {
   const { date, currentDate } = req.query;
   if(date) {
@@ -124,6 +135,11 @@ async function read(req, res) {
   const data = await reservationsService.read(reservation_id);
   res.json({ data });
 }
+
+async function update(req, res, next) {
+  await reservationsService.update(res.locals.reservation.reservation_id);
+  res.status(200).json({ data: res.locals.reservation.reservation_id });
+}
  
 module.exports = {
   list: asyncErrorBoundary(list),
@@ -138,4 +154,5 @@ module.exports = {
         asyncErrorBoundary(create)
       ],
   read: [asyncErrorBoundary(reservationExists), asyncErrorBoundary(read)],
+  update: [asyncErrorBoundary(reservationExists), validStatus, asyncErrorBoundary(update)]
 };
