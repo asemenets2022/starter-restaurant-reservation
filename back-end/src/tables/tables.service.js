@@ -36,18 +36,19 @@
  }
  
  async function update(reservation_id, table_id) {
-  console.log(typeof table_id, typeof reservation_id);
+  console.log(reservation_id, table_id);
    return knex("tables")
      .where({ table_id: Number(table_id) })
+     .select("reservation_id", "table_status")
      .update(
        {
          reservation_id: Number(reservation_id),
          table_status: "occupied",
        }
      )
-    //  .then(() =>
-    //    knex("reservations").where({ reservation_id }).update({ status: "seated" })
-    //  )
+     .then(() =>
+       knex("reservations").where({ reservation_id: Number(reservation_id) }).update({ status: "seated" })
+     )
  } 
 
  module.exports = {

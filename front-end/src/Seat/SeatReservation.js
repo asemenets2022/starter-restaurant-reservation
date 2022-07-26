@@ -25,7 +25,6 @@ export default function Seat() {
     event.preventDefault();
     const ac = new AbortController();
     try {
-      console.log(seatTable)
       const response = await updateTableOnceSeated(
         reservation_id,
         seatTable,
@@ -34,6 +33,7 @@ export default function Seat() {
       if (response) {
         history.push(`/dashboard`);
       }
+
     } catch (error) {
       setTableError(error);
     }
