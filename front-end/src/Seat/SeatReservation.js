@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
-import { listTables, seatReservation, readReservation } from "../utils/api";
+import { listTables, readReservation, updateTableOnceSeated } from "../utils/api";
 import ErrorAlert from "../layout/ErrorAlert";
 
 export default function Seat() {
@@ -25,9 +25,10 @@ export default function Seat() {
     event.preventDefault();
     const ac = new AbortController();
     try {
-      const response = await seatReservation(
-        seatTable,
+      console.log(seatTable)
+      const response = await updateTableOnceSeated(
         reservation_id,
+        seatTable,
         ac.signal
       );
       if (response) {
@@ -45,7 +46,6 @@ export default function Seat() {
 
   function changeHandler(event) {
     setSeatTable(event.target.value);
-    console.log(seatTable);
   }
 
   return (
@@ -73,7 +73,7 @@ export default function Seat() {
                 {tables.map((table) => (
                   <option
                     key={table.table_id}
-                    value={JSON.stringify(table)}
+                    value={table.table_id}
                     required={true}
                   >
                     {table.table_name} - {table.capacity}

@@ -30,7 +30,7 @@ function read(reservation_id) {
 function update(reservation_id) {
     return knex("reservations")
     .where({reservation_id})
-    .update({ status: "seated"})
+    .update({ status: "seated"});
 }
 
 module.exports = {

@@ -15,14 +15,14 @@
   }
 
   function readReservation(reservation_id) {
-   return knex("reservations as r")
+   return knex("reservations")
      .select("*")
      .where({ reservation_id })
      .first();
  }
  
  function readTable(table_id) {
-   return knex("tables as t")
+   return knex("tables")
    .select("*")
    .where({ table_id })
    .first();
@@ -36,18 +36,18 @@
  }
  
  async function update(reservation_id, table_id) {
+  console.log(typeof table_id, typeof reservation_id);
    return knex("tables")
-     .where({ table_id })
+     .where({ table_id: Number(table_id) })
      .update(
        {
-         reservation_id: reservation_id,
+         reservation_id: Number(reservation_id),
          table_status: "occupied",
-       },
-       "*"
+       }
      )
-     .then(() =>
-       knex("reservations").where({ reservation_id }).update({ status: "seated" })
-     )
+    //  .then(() =>
+    //    knex("reservations").where({ reservation_id }).update({ status: "seated" })
+    //  )
  } 
 
  module.exports = {
