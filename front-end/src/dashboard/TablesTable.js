@@ -22,6 +22,7 @@ export default function TablesTable({ tables }) {
                         <th>TABLE NAME</th>
                         <th>CAPACITY</th>
                         <th>FREE?</th>
+                        <th>RES ID</th>
                         <th></th>
                     </tr>
                 </thead>
