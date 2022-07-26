@@ -89,6 +89,17 @@ function isWithinOpenHours(req, res, next) {
   next();
 }
 
+function validStatus(req, res, next) {
+  const status = res.locals.reservation.status;
+  if(status !== "seated" && status !== "finished") {
+    return next();
+  }
+  next({
+    status: 400,
+    message: "status cannot be seated, finished",
+  });
+}
+
 async function list(req, res, next) {
   const { date, currentDate } = req.query;
   if(date) {
@@ -108,6 +119,27 @@ async function create(req, res, next) {
   reservation.reservation_id = reservation_id;
   res.status(201).json({ data: reservation });
 }
+
+async function reservationExists(req, res, next) {
+  const { reservation_id } = req.params;
+  const reservation = await reservationsService.read(reservation_id);
+  if (reservation) {
+    res.locals.reservation = reservation;
+    return next();
+  }
+  next({ status: 404, message: `Reservation ${reservation_id} not found` });
+}
+
+async function read(req, res) {
+  const reservation_id = req.params.reservation_id;
+  const data = await reservationsService.read(reservation_id);
+  res.json({ data });
+}
+
+async function update(req, res, next) {
+  await reservationsService.update(res.locals.reservation.reservation_id);
+  res.status(200).json({ data: res.locals.reservation.reservation_id });
+}
  
 module.exports = {
   list: asyncErrorBoundary(list),
@@ -121,4 +153,6 @@ module.exports = {
           isWithinOpenHours,
         asyncErrorBoundary(create)
       ],
+  read: [asyncErrorBoundary(reservationExists), asyncErrorBoundary(read)],
+  update: [asyncErrorBoundary(reservationExists), validStatus, asyncErrorBoundary(update)]
 };
