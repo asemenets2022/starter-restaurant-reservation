@@ -106,6 +106,18 @@ async function tableIsFree(req, res, next) {
     });
   }
 
+async function tableIsOccupied(req, res, next) {
+  const table_id = req.params.table_id;
+  const table = await tablesService.readTable(table_id);
+  if(table.table_status === "occupied") {
+    return next();
+  }
+  next({
+    status: 400,
+    message: "table_id is not occupied",
+  });
+}
+
 async function list(req, res) {
     const data = await tablesService.list();
     res.json({ data });
@@ -123,6 +135,13 @@ async function create(req, res) {
   await tablesService.update(reservation_id, table_id);
   res.status(200).json({ data: reservation_id });
   }
+
+async function deleteTableReservation(req, res) {
+  const table = req.body.data;
+  await tablesService.deleteTableReservation(table.table_id);
+  const data = await tablesService.list();
+  res.status(200).json({ data: table.table_id });
+}
 
 module.exports = {
     list: asyncErrorBoundary(list),
@@ -142,6 +161,10 @@ module.exports = {
       asyncErrorBoundary(tableIdExists),
       asyncErrorBoundary(reservationIsSeated),
       asyncErrorBoundary(update),
-    ]
-
+    ],
+    delete: [
+      asyncErrorBoundary(tableIdExists),
+      asyncErrorBoundary(tableIsOccupied),
+      asyncErrorBoundary(deleteTableReservation),
+    ],
 }

@@ -1,7 +1,26 @@
-import React from "react";
+import React, {useState} from "react";
+import { deleteTableReservation } from "../utils/api";
+import ErrorAlert from "../layout/ErrorAlert";
 
-export default function TablesTable({ tables }) {
+export default function TablesTable({ tables, loadDashboard }) {
+
+const [error, setError] = useState(null);
+
     const tablesTableRow = tables.map((table) => {
+    
+        async function handleClear(event) {
+            const ac = new AbortController();
+            event.preventDefault();
+            setError(null);
+            if(window.confirm("Is this table ready to seat new guests? This cannot be undone.")) {
+                await deleteTableReservation(table.table_id, ac.signal);
+                loadDashboard();
+                return;
+            } else {
+                return;
+            }
+        }
+
         return (
             <tr key={table.table_id}>
             <td>{table.table_id}</td>
@@ -9,12 +28,14 @@ export default function TablesTable({ tables }) {
             <td>{table.capacity}</td>
             <td>{table.table_status}</td>
             <td>{table.reservation_id}</td>
+            <td>{table.reservation_id ? <button className="btn btn-secondary" onClick={handleClear} data-table-id-finish={table.table_id}>Finish</button> : <></>}</td>
             </tr>
         );
       });
 
     return (
         <div> 
+            <ErrorAlert error={error} />
             <table className="table table-sm">
                 <thead>
                     <tr>
