@@ -52,7 +52,7 @@
  
  async function deleteTableReservation(table_id) {
   return knex("tables")
-  .where({ table_id: Number(table_id) })
+  .where({ table_id: table_id })
   .update(
     {
       reservation_id: null,

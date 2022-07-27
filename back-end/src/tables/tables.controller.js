@@ -137,10 +137,9 @@ async function create(req, res) {
   }
 
 async function deleteTableReservation(req, res) {
-  const table = req.body.data;
-  await tablesService.deleteTableReservation(table.table_id);
-  const data = await tablesService.list();
-  res.status(200).json({ data: table.table_id });
+  const table_id = req.params.table_id;
+  const deletedTable = await tablesService.deleteTableReservation(table_id);
+  res.status(200).json({ data: deletedTable });
 }
 
 module.exports = {

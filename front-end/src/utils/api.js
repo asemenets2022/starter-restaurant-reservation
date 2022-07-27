@@ -39,6 +39,7 @@ async function fetchJson(url, options, onCancel) {
 
     const payload = await response.json();
 
+    console.log(payload);
     if (payload.error) {
       return Promise.reject({ message: payload.error });
     }
@@ -123,7 +124,7 @@ export async function deleteTableReservation(table_id, signal) {
     method: "DELETE",
     body: JSON.stringify({ data: {table_id} }),
   };
-  return await fetchJson(url, options, []);
+  return await fetchJson(url, options);
 }
 
 
