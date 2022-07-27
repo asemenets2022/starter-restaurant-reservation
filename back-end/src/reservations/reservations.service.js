@@ -3,6 +3,7 @@ const knex = require("../db/connection");
 function list() {
     return knex("reservations")
     .select("*")
+    .whereNot("reservations.status", "finished")
     .orderBy("reservation_time");
 }
 
@@ -10,6 +11,7 @@ function listByDate(reservation_date) {
     return knex("reservations")
     .select("*")
     .where({ reservation_date })
+    .whereNot("reservations.status", "finished")
     .orderBy("reservation_time");
 }
 
@@ -33,10 +35,19 @@ function update(reservation_id) {
     .update({ status: "seated"});
 }
 
+function updateReservationStatus(reservation_id, newStatus) {
+    return knex("reservations")
+    .where({ reservation_id })
+    .update({ status: newStatus })
+    .returning("*")
+    .then(result => result[0]);
+}
+
 module.exports = {
     list,
     listByDate,
     create,
     read,
     update,
+    updateReservationStatus,
 }
