@@ -57,11 +57,7 @@
     {
       reservation_id: null,
       table_status: "free",
-    }
-  )
-  .then(() => 
-    knex("reservations").where({ reservation_id: Number(reservation_id)}).update({status: "finished" })
-  )
+    })
  }
 
  module.exports = {
