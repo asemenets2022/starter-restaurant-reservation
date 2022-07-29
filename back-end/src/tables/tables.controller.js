@@ -138,6 +138,8 @@ async function create(req, res) {
 
 async function deleteTableReservation(req, res) {
   const table_id = req.params.table_id;
+  // const reservation_id = req.body.data.reservation_id; 
+  // console.log("RESERVATION ID", reservation_id);
   const deletedTable = await tablesService.deleteTableReservation(table_id);
   res.status(200).json({ data: deletedTable });
 }

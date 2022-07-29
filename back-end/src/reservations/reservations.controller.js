@@ -19,7 +19,7 @@ const REQUIRED_PROPERTIES = [
   "reservation_date",
   "reservation_time",
   "people",
-]
+];
 
 const hasRequiredProperties = hasProperties(...REQUIRED_PROPERTIES);
 
@@ -44,11 +44,10 @@ function validTime(req, res, next) {
 
 function validPeople(req, res, next) {
   const people = req.body.data.people;
-  console.log(typeof people);
   if (people < 1 || typeof people !== "number") {
     return next({ status: 400, message: "Valid people property required" });
   }
-    return next();
+  return next();
 }
 
 function isNotOnTuesday(req, res, next) {
@@ -90,8 +89,8 @@ function isWithinOpenHours(req, res, next) {
 }
 
 function validStatus(req, res, next) {
-  const status = res.locals.reservation.status;
-  if(status !== "seated" && status !== "finished") {
+  const status = req.body.data.status;
+  if (status !== "seated" && status !== "finished") {
     return next();
   }
   next({
@@ -100,16 +99,42 @@ function validStatus(req, res, next) {
   });
 }
 
-async function list(req, res, next) {
-  const { date, currentDate } = req.query;
-  if(date) {
-    const data = await reservationsService.listByDate(date);
-    res.json({ data });
-  } else if (currentDate) {  
-    const data = await reservationsService.listByDate(currentDate);
+function updateValidStatus(req, res, next) {
+  const status = req.body.data.status;
+  if (status !== "unknown") {
+    return next();
+  }
+  next({
+    status: 400,
+    message: "status cannot be unknown",
+  });
+}
+
+function resNotFinished(req, res, next) {
+  const reservation = res.locals.reservation;
+  if (reservation.status === "finished") {
+    next({
+      status: 400,
+      message: "reservation cannot already be finished.",
+    });
   } else {
-    const data = await reservationsService.list();
+    return next();
+  }
+}
+
+async function list(req, res, next) {
+  const { date, currentDate, mobile_number } = req.query;
+  if (date) {
+    const data = await reservationsService.listByDate(date);
+    return res.json({ data });
+  // } else if (currentDate) {
+  //   const data = await reservationsService.listByDate(currentDate);
+  } else {
+    const data = await reservationsService.search(mobile_number);
     res.json({ data });
+  // } else {
+  //   const data = await reservationsService.list();
+  //   res.json({ data });
   }
 }
 
@@ -140,19 +165,61 @@ async function update(req, res, next) {
   await reservationsService.update(res.locals.reservation.reservation_id);
   res.status(200).json({ data: res.locals.reservation.reservation_id });
 }
- 
+
+async function updateReservationStatus(req, res, next) {
+  const newStatus = req.body.data.status;
+  const reservation_id = req.params.reservation_id;
+  const result = await reservationsService.updateReservationStatus(
+    reservation_id,
+    newStatus
+  );
+  res.status(200).json({ data: result });
+}
+
+async function updateReservation(req, res, next) {
+  const reservation = req.body.data;
+  const newReservation = await reservationsService.updateReservation(
+    reservation
+  );
+  res.status(200).json({ data: newReservation });
+}
+
 module.exports = {
   list: asyncErrorBoundary(list),
-  create: [hasData,
-          hasRequiredProperties,
-          validDate,
-          validTime,
-          validPeople,
-          isNotOnTuesday,
-          isInTheFuture,  
-          isWithinOpenHours,
-        asyncErrorBoundary(create)
-      ],
+  create: [
+    hasData,
+    hasRequiredProperties,
+    validDate,
+    validTime,
+    validPeople,
+    isNotOnTuesday,
+    isInTheFuture,
+    isWithinOpenHours,
+    validStatus,
+    asyncErrorBoundary(create),
+  ],
   read: [asyncErrorBoundary(reservationExists), asyncErrorBoundary(read)],
-  update: [asyncErrorBoundary(reservationExists), validStatus, asyncErrorBoundary(update)]
+  update: [
+    asyncErrorBoundary(reservationExists),
+    validStatus,
+    asyncErrorBoundary(update),
+  ],
+  updateReservationStatus: [
+    asyncErrorBoundary(reservationExists),
+    updateValidStatus,
+    resNotFinished,
+    asyncErrorBoundary(updateReservationStatus),
+  ],
+  updateReservation: [
+    asyncErrorBoundary(reservationExists),
+    hasRequiredProperties,
+    validDate,
+    validTime,
+    validPeople,
+    isNotOnTuesday,
+    isInTheFuture,
+    isWithinOpenHours,
+    validStatus,
+    asyncErrorBoundary(updateReservation),
+  ],
 };

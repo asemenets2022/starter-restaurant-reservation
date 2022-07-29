@@ -1,9 +1,9 @@
-import React, {useState} from "react";
-import { useHistory } from "react-router-dom";
-import { createReservations } from "../utils/api";
+import React, { useState, useEffect } from "react";
 import ErrorAlert from "../layout/ErrorAlert";
+import { readReservation, updateReservation } from "../utils/api";
+import { useHistory, useParams } from "react-router-dom";
 
-export default function CreateReservation() {
+export default function EditReservation() {
     const history = useHistory();
 
     const initialFormState = {
@@ -16,7 +16,19 @@ export default function CreateReservation() {
     }
 
     const [formData, setFormData] = useState({...initialFormState});
-    const [reservationsError, setReservationsError] = useState(null);
+    const [error, setError] = useState(null);
+    const { reservation_id } = useParams();
+
+    useEffect(() => {
+        const ac = new AbortController();
+        readReservation(reservation_id, ac.signal)
+        .then((response) => {
+            setFormData({
+                ...response 
+            })
+        })
+        .catch(setError);
+    }, [reservation_id]);
 
     const changeHandler = (event) => {
         setFormData({
@@ -25,27 +37,29 @@ export default function CreateReservation() {
         });
     };
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        try {
-            setReservationsError(null);
-            const response = await createReservations({...formData, people: Number(formData.people)});
-            const date = response.reservation_date;
-            history.push(`/dashboard?date=${date}`)
-        } catch (error) {
-            setReservationsError(error);
-            console.log(error);
-        };
-        }
-
     function cancelHandler() {
         history.goBack();
     }
 
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        try {
+            const ac = new AbortController();
+            setError(null);
+            await updateReservation({
+                ...formData, people: Number(formData.people )
+            }, ac.signal);
+            history.push(`/dashboard?date=${formData.reservation_date}`);
+            return () => ac.abort();
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
     return (
         <div>
-            <h1>Create Reservation</h1>
-            <ErrorAlert error={reservationsError} />
+            <h1>Edit Reservation</h1>
+            <ErrorAlert error={error} />
             <form onSubmit={handleSubmit}>
                     <div className="row">
                     <div className="form-group col">
@@ -67,7 +81,7 @@ export default function CreateReservation() {
                     <div className="row">
                     <div className="form-group col">
                         <label>Date
-                        <input name="reservation_date" type="date" className="form-control" required="" placeholder="yyyy-mm-dd" pattern="\d{4}-\d{2}-\d{2}" value={formData.reservation_date} onChange={changeHandler}></input>
+                        <input name="reservation_date" type="date" className="form-control" required="" placeholder="yyyy-mm-dd" value={formData.reservation_date} onChange={changeHandler}></input>
                         </label>
                     </div>
                     <div className="form-group col">
