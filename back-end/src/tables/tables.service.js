@@ -50,7 +50,7 @@
      )
  }
  
- async function deleteTableReservation(table_id, reservation_id) {
+ async function deleteTableReservation(table_id) {
   return knex("tables")
   .where({ table_id: Number(table_id) })
   .update(
@@ -58,6 +58,9 @@
       reservation_id: null,
       table_status: "free",
     })
+    // .then(() => 
+    // knex("reservations").where({reservation_id: Number(reservation_id)}).update({status: "finished" })
+    // )
  }
 
  module.exports = {

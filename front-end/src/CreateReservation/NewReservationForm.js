@@ -67,7 +67,7 @@ export default function CreateReservation() {
                     <div className="row">
                     <div className="form-group col">
                         <label>Date
-                        <input name="reservation_date" type="date" className="form-control" required="" placeholder="yyyy-mm-dd" value={formData.reservation_date} onChange={changeHandler}></input>
+                        <input name="reservation_date" type="date" className="form-control" required="" placeholder="yyyy-mm-dd" pattern="\d{4}-\d{2}-\d{2}" value={formData.reservation_date} onChange={changeHandler}></input>
                         </label>
                     </div>
                     <div className="form-group col">
