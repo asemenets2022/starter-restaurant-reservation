@@ -32,16 +32,15 @@ describe("US-01 - Create and list reservations - E2E", () => {
   });
 
   describe("/reservations/new page", () => {
-    test.skip("filling and submitting form creates a new reservation and then displays the dashboard for the reservation date", async () => {
+    test("filling and submitting form creates a new reservation and then displays the dashboard for the reservation date", async () => {
       const lastName = Date.now().toString(10);
 
       await page.type("input[name=first_name]", "James");
       await page.type("input[name=last_name]", lastName);
       await page.type("input[name=mobile_number]", "800-555-1212");
-      await page.type("input[name=reservation_date]", "2035-01-01"); // Casey said to change it
+      await page.type("input[name=reservation_date]", "01012035"); 
       await page.type("input[name=reservation_time]", "1330");
       await page.type("input[name=people]", "2");
-      console.log(44);
       await page.screenshot({
         path: ".screenshots/us-01-submit-before.png",
         fullPage: true,
@@ -51,7 +50,6 @@ describe("US-01 - Create and list reservations - E2E", () => {
         page.click("[type=submit]"),
         page.waitForNavigation({ waitUntil: "networkidle0" }),
       ]);
-      console.log(54);
       await page.screenshot({
         path: ".screenshots/us-01-submit-after.png",
         fullPage: true,

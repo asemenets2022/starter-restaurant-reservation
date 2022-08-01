@@ -127,14 +127,14 @@ async function list(req, res, next) {
   if (date) {
     const data = await reservationsService.listByDate(date);
     return res.json({ data });
-  // } else if (currentDate) {
-  //   const data = await reservationsService.listByDate(currentDate);
-  } else {
+  } else if (currentDate) {
+    const data = await reservationsService.listByDate(currentDate);
+  } else if (mobile_number) {
     const data = await reservationsService.search(mobile_number);
     res.json({ data });
-  // } else {
-  //   const data = await reservationsService.list();
-  //   res.json({ data });
+  } else {
+    const data = await reservationsService.list();
+    res.json({ data });
   }
 }
 
@@ -158,7 +158,7 @@ async function reservationExists(req, res, next) {
 async function read(req, res) {
   const reservation_id = req.params.reservation_id;
   const data = await reservationsService.read(reservation_id);
-  res.json({ data });
+  res.json( {data} );
 }
 
 async function update(req, res, next) {

@@ -26,8 +26,8 @@ const [error, setError] = useState(null);
         event.preventDefault();
         setError(null);
         if(window.confirm("Is this table ready to seat new guests? This cannot be undone.")) {
-            await deleteTableReservation(table.table_id, ac.signal);
             await updateReservationStatus({ status: "finished"}, table.reservation_id, ac.signal);
+            await deleteTableReservation(table.table_id, ac.signal);
             loadDashboard();
             return;
         } else {

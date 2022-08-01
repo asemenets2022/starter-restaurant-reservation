@@ -39,7 +39,7 @@ describe("US-02 - Create reservation on a future, working date - E2E", () => {
       await page.type("input[name=people]", "3");
     });
 
-    test.skip("displays an error message if the date of the reservation occurs in the past", async () => {
+    test("displays an error message if the date of the reservation occurs in the past", async () => {
       await page.type("input[name=reservation_date]", "12242020");
       await page.type("input[name=reservation_time]", "05:30PM");
 
@@ -57,7 +57,7 @@ describe("US-02 - Create reservation on a future, working date - E2E", () => {
       expect(alerts.length).toBeGreaterThan(0);
     });
 
-    test.skip("displays an error message if reservation date falls on a Tuesday", async () => {
+    test("displays an error message if reservation date falls on a Tuesday", async () => {
       await page.type("input[name=reservation_date]", "02062035");
       await page.type("input[name=reservation_time]", "05:30PM");
 
