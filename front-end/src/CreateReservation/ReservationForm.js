@@ -1,51 +1,10 @@
-import React, {useState} from "react";
-import { useHistory } from "react-router-dom";
-import { createReservations } from "../utils/api";
-import ErrorAlert from "../layout/ErrorAlert";
+import React from "react";
 
-export default function CreateReservation() {
-    const history = useHistory();
-
-    const initialFormState = {
-        first_name: "",
-        last_name: "",
-        mobile_number: "",
-        reservation_date: "",
-        reservation_time: "",
-        people: 0,
-    }
-
-    const [formData, setFormData] = useState({...initialFormState});
-    const [reservationsError, setReservationsError] = useState(null);
-
-    const changeHandler = (event) => {
-        setFormData({
-            ...formData,
-            [event.target.name]: event.target.value,
-        });
-    };
-
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        try {
-            setReservationsError(null);
-            const response = await createReservations({...formData, people: Number(formData.people)});
-            const date = response.reservation_date;
-            history.push(`/dashboard?date=${date}`)
-        } catch (error) {
-            setReservationsError(error);
-            console.log(error);
-        };
-        }
-
-    function cancelHandler() {
-        history.goBack();
-    }
+export default function ReservationForm({ formData, changeHandler, handleSubmit, cancelHandler}) {
 
     return (
         <div>
             <h1>Create Reservation</h1>
-            <ErrorAlert error={reservationsError} />
             <form onSubmit={handleSubmit}>
                     <div className="row">
                     <div className="form-group col">
