@@ -52,7 +52,6 @@ function Dashboard({ date }) {
           <div className="d-md-flex mb-3">
           <h4 className="box-title mb-0">Reservations for {date}</h4>
         </div>
-        <div className="btn-group" role="group" aria-label="navigation buttons">
           <button className="btn btn-secondary" onClick={handlePrev}>
             Previous
           </button>
@@ -62,7 +61,6 @@ function Dashboard({ date }) {
           <button className="btn btn-secondary" onClick={handleNext}>
             Next
           </button>
-        </div>
         <div>
           <ErrorAlert error={reservationsError} />
         </div>

@@ -2,3 +2,16 @@
   background-color: #393a44;
   min-width: 200px;
 }
+
+button {
+  margin-right: 15px;
+  margin-bottom: 15px;
+  border-radius: 15px;
+}
+
+a {
+  margin-right: 15px;
+  margin-bottom: 15px;
+  border-radius: 15px;
+}
+
